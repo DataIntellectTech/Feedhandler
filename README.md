@@ -31,8 +31,17 @@ solace@homer:~Feedhandler$
 
 Each example design source can be loaded using the main driver file `blog.q`. Each example contains a few common functions which are outlined below.
 ### `startserver`
+This function starts a thread which mimics a feed for use in all the example demonstrations. The feed starts listening on a port defined by the first argument and sends a simple "hello world" message at a frequency defined by the second argument. For simplicity the message payload is a constant size. This payload is pushed to a client that connects. By varying the feqency of the updates the behaviour of the different examples can be shown.   
+
 ### `startclient`
+This function starts a feed which connects to the feed (which must be started previously). The feed then recieves messages and passes these to the host kdb+ session. The manner and efficiency in which this data is passed back is different in each of the three examples. 
+
 ### `getstats`
+This function returns statistics relating to how many mesages have been sent by the exchange, how many have been processed by the feed application and potentially how many have been passed back to the main kdb+ application.
+
+
+
+
 
 
 
