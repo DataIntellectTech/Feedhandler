@@ -1,11 +1,32 @@
 # Repository Outline
 
-The attachted repository outlines three designs for dynalically loaded kdb+ feedhandlers. Each example builds on the prvious design finishing on a pattern which can be extedted to directly ingest data from any reasonably standard source with an available C api. 
-The purpose of the code samples is to provide an outline design, but the sample themselves are designe dto illustare the genral points, rather than be used as code starting points. A more rigirious implemenation ofthe third example can be found [here](https://www.quora.com).  
+The attachted repository outlines three designs for dynalically loaded kdb+ feedhandlers. Each example builds on the previous design, finishing with a pattern which can be extendted to efficiently ingest data from any reasonably standard source with an available C api. 
+The purpose of the code samples is to provide an outline design that a reader may follow, but it should be understood the samples themselves are designed to illustraate genral points, rather than be used directly. A more rigirious implemenation of the third example can be found [here](https://github.com/AquaQAnalytics/TorQ-Solace/).  
 
-## Solace
+## Set up instructions
 
-Solace provides a broker that handles messages sent between processes. This application is comparable to a standard kdb+ tickerplant, that publishes messages to real-time subscribers filtered by topic. The code in this repo allows kdb+ to communicate with any solace messaging framework. The API provides a translation from most solace datatypes to kdb+ and vice versa.
+The examples require access to a revcent version of kdb+ (>3.0). Otherwisethe examples should run on a standard linux machine. 
+```
+kdb@homer:~$ git clone https://github.com/AquaQAnalytics/Feedhandler.git
+Cloning into 'Feedhandler'...
+remote: Enumerating objects: 26, done.
+remote: Counting objects: 100% (26/26), done.
+remote: Compressing objects: 100% (20/20), done.
+remote: Total 26 (delta 5), reused 19 (delta 4), pack-reused 0
+Unpacking objects: 100% (26/26), done.
+kdb@homer:~$ cd Feedhandler/
+kdbe@homer:~Feedhandler$ make
+rm -f lib/*
+gcc c/blog.c c/eg1.c -Iinc/ -DKXVER=3 -fPIC -shared -lpthread -Wno-incompatible-pointer-types -o lib/eg1.so
+gcc c/blog.c c/eg2.c -Iinc/ -DKXVER=3 -fPIC -shared -lpthread -Wno-incompatible-pointer-types -o lib/eg2.so
+gcc c/blog.c -Iinc/ -DKXVER=3 -fPIC -shared -lpthread -Wno-incompatible-pointer-types c/eg3.c c/cb.c -o lib/eg3.so
+solace@homer:~Feedhandler$
+solace@homer:~Feedhandler$ q q/blog.q
+KDB+ 3.5 2017.11.30 Copyright (C) 1993-2017 Kx Systems
+"Must specify example"
+"usage: q q/blog.q -eg eg3 [-freq 100] [-callback slow]"
+solace@homer:~Feedhandler$
+```
 
 ## Set up Instructions
 
