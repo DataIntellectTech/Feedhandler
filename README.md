@@ -30,7 +30,7 @@ solace@homer:~Feedhandler$
 
 ## Design A - Simple Callback
 
-``
+```
 #################################
 # Example 1: Simple consumer with slow message rate
 homer$ q q/blog.q -eg eg1
@@ -94,7 +94,7 @@ q)("Update ";20:53:10.077;"#### Hello world      0  ####";0;(`sent;`processed)!1
 \\
 
 ########################################
-``
+```
 
 
 ### Install Solace Broker
