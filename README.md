@@ -27,12 +27,24 @@ KDB+ 3.5 2017.11.30 Copyright (C) 1993-2017 Kx Systems
 "usage: q q/blog.q -eg eg3 [-freq 100] [-callback slow]"
 solace@homer:~Feedhandler$
 ```
+## Outline
+
+Each example design source can be loaded using the main driver file `blog.q`. Each example contains a few common functions which are outlined below.
+### `startserver`
+### `startclient`
+### `getstats`
+
+
+
+
+
+
 
 ## Design A - Simple Callback
 
 ```
 #################################
-# Example 1: Simple consumer with slow message rate
+# Example 1(a): Simple consumer with slow message rate
 homer$ q q/blog.q -eg eg1
 KDB+ 3.5 2017.11.30 Copyright (C) 1993-2017 Kx Systems
 
@@ -57,7 +69,7 @@ q)("Update ";20:52:40.535;"#### Hello world      0  ####";0;(`sent;`processed)!1
 ("Update ";20:52:54.537;"#### Hello world     14  ####";14;(`sent;`processed)!15 14)
 \\
 #################################
-# Example 1: Simple consumer with fast message rate and client beginning to fall behind processing messages
+# Example 1(b): Simple consumer with fast message rate and client beginning to fall behind processing messages
 homer$ q q/blog.q -eg eg1 -freq 100 -callback slow
 KDB+ 3.5 2017.11.30 Copyright (C) 1993-2017 Kx Systems
 
@@ -95,7 +107,7 @@ q)("Update ";20:53:10.077;"#### Hello world      0  ####";0;(`sent;`processed)!1
 
 ########################################
 ```
-
+In this example as the message rate increases or the processing time of the payload of a callback increases the number of items the feed has waiting to be processed increases. Eventually, the exchange socket connection will fill up and the inreal life the feed conenction would be disconnected.
 
 ### Install Solace Broker
 
