@@ -110,7 +110,7 @@ q)("Update ";20:53:10.077;"#### Hello world      0  ####";0;(`sent;`processed)!1
 ```
 In this example, as the message rate increases or the processing time of the payload of a callback increases, the number of items the feed has sent but which remain unprocessed by the client increases. Eventually, the exchange socket connection will fill up and in a real life scenario the feed conenction would be terminated.
 
-## Design B - Dual Thread consumer
+## Design B - Dual-thread consumer
 
 In this design the client creates a thread specifically for listening to the exchange. Once a message has been removed from the exchange connection it is passed by this thread to the kdb+ main thread via a socket pair. This socket pair acts like a waiting room for messages that are waiting to be processed, but crucially the socket pair is owned by the client application, and messages are retrieved from the exchange socket as quickly as possible. 
 
@@ -174,7 +174,7 @@ q)("Update ";21:03:04.240;0;"#### Hello world      0  ####";(`sent;`received;`pr
 ```
 Example 2(a) shows the count of messages sent by the exchange (`sent`), messages received by the client but not yet passed to the parent kdb+ application (`received`), and messages that have been processed by the main kdb+ application (`processed`). For low frequency messages this design performs no better than the first example. In example 2(b), where the processing time of a message has been increased we can see that the number of messages received by the application stays in line with the number sent by the exchange, even though the number processed trails significantly. Eventually the socket pair connection would fill up and the exchange connection would become saturated, however for short periods the socket pair acts like a safety valve, in much the same manner as a chained tickerplant would in a traditional tickerplant setup.
 
-## Design C - Dual Thread consumer with circular buffer
+## Design C - Dual-thread consumer with circular buffer
 
 In the final example, the previous setup has been improved in two areas. Transferring the data between threads via a network socket has significant overhead. Even if Unix Domain Sockets are used, this transfer is inefficent and has been replaced with a memory copy onto a shared space of memory created on the head of the client application. Furthermore, rather than passing each message individually onto the main client callback function, multiple messages, when available, are drained from buffer and passed back. This gives the client the option to ignore messages and essentially the option to "look a head" when the application has pending messages. In effect this means that the number of events on the client side may be significantly less than those on the exchange side.
 
