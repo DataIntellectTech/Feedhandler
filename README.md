@@ -45,7 +45,7 @@ This function returns statistics relating to how many messages have been sent by
 This is the most basic design and if the feed is either low frequency, or processing time of individual messages is short, may be suitable. The example also illustrates the usage of the `sd1` function within the core kdb+ api.
 ```
 #################################
-# Example 1(a): Simple consumer with slow message rate
+# Example 1(a): Simple consumer
 homer$ q q/blog.q -eg eg1
 KDB+ 3.5 2017.11.30 Copyright (C) 1993-2017 Kx Systems
 
