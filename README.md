@@ -1,11 +1,11 @@
 # Repository Outline
 
-The attachted repository outlines three designs for dynalically loaded kdb+ feedhandlers. Each example builds on the previous design, finishing with a pattern which can be extendted to efficiently ingest data from any reasonably standard source with an available C api. 
-The purpose of the code samples is to provide an outline design that a reader may follow, but it should be understood the samples themselves are designed to illustraate genral points, rather than be used directly. A more rigirious implemenation of the third example can be found [here](https://github.com/AquaQAnalytics/TorQ-Solace/).  
+The attached repository outlines three designs for dynamically loaded kdb+ feedhandlers. Each example builds on the previous design, finishing with a pattern which can be extended to efficiently ingest data from any reasonably standard source with an available C api. 
+The purpose of the code samples is to provide an outline design that a reader may follow, but it should be understood that the samples themselves are designed to illustrate general points, rather than be used directly. A more rigorous implementation of the third example can be found [here](https://github.com/AquaQAnalytics/TorQ-Solace/).  
 
 ## Set up instructions
 
-The examples require access to a recent version of kdb+ (>3.0). Otherwisethe examples should run on a standard linux machine. 
+The examples require access to a recent version of kdb+ (>3.0). Otherwise the examples should run on a standard linux machine. 
 ```
 kdb@homer:~$ git clone https://github.com/AquaQAnalytics/Feedhandler.git
 Cloning into 'Feedhandler'...
@@ -32,17 +32,17 @@ solace@homer:~Feedhandler$
 Each example design source can be loaded using the main driver file `blog.q`. Each example contains a few common functions which are outlined below.
 
 ### `startserver[port;frequency]`
-This function starts a thread which mimics a feed or exchange for use in all the example demonstrations. The feed starts listening on a port defined by the first argument and sends a simple "hello world" message at a frequency defined by the second argument. For simplicity the message payload is a constant size. This payload is pushed to a client that connects. By varying the feqency of the updates the behaviour of the different examples can be shown. The connection is via a simple TCP socket.   
+This function starts a thread which mimics a feed or exchange for use in all the example demonstrations. The feed starts listening on a port defined by the first argument and sends a simple "hello world" message at a frequency defined by the second argument. For simplicity the message payload is a constant size. This payload is pushed to a client that connects. By varying the frequency of the updates the behaviour of the different examples can be shown. The connection is via a simple TCP socket.   
 
 ### `startclient[port]`
-This function starts a feed which connects to the feed (which must be started previously). The feed then recieves messages and passes these to the host kdb+ session. The manner and efficiency in which this data is passed back is different in each of the three examples. 
+This function starts a client which connects to the feed (which must have been started previously). The feed then receives messages and passes these to the host kdb+ session. The manner and efficiency by which this data is passed back is different in each of the three examples. 
 
 ### `getstats[]`
-This function returns statistics relating to how many mesages have been sent by the exchange, how many have been processed by the feed application and potentially how many have been passed back to the main kdb+ application. This functions and its return shows how the different designs relevant message queues behave. 
+This function returns statistics relating to how many messages have been sent by the exchange, how many have been processed by the feed application and potentially how many have been passed back to the main kdb+ application. This function and its return shows how the different designs' relevant message queues behave. 
 
 
 ## Design A - Simple Callback
-This is the most basic design and if the feed is either low frequency, or processing time of individual messages is short may be suitable. The example also illustrates the usage of the `sd1` function within the core kdb+ api.
+This is the most basic design and if the feed is either low frequency, or processing time of individual messages is short, may be suitable. The example also illustrates the usage of the `sd1` function within the core kdb+ api.
 ```
 #################################
 # Example 1(a): Simple consumer with slow message rate
@@ -108,7 +108,7 @@ q)("Update ";20:53:10.077;"#### Hello world      0  ####";0;(`sent;`processed)!1
 
 ########################################
 ```
-In example as the message rate increases or the processing time of the payload of a callback increases the number of items the feed has sent but remain unprocessed by the client increases. Eventually, the exchange socket connection will fill up and in a real life scenario the feed conenction would be terminated.
+In this example, as the message rate increases or the processing time of the payload of a callback increases, the number of items the feed has sent but which remain unprocessed by the client increases. Eventually, the exchange socket connection will fill up and in a real life scenario the feed conenction would be terminated.
 
 ## Design B - Dual Thread consumer
 
@@ -172,11 +172,11 @@ q)("Update ";21:03:04.240;0;"#### Hello world      0  ####";(`sent;`received;`pr
 \\
 ##############################
 ```
-Example 2(a) shows the messages sent by the exchange (`sent`), recieved by the client but not yet passed to the parent kdb+ application (`received`), and those that have been processed by the main kdb+ application (`processed`). For low frequency messages this design performs no better than the first example. In example 2(b), where the processing time of a message has been increased we can see that the messages reciveed by the application stays in line with those sent by the exchange, even thoough the number processed trails significantly. Eventually the sockat pair connection would fill up and the exchange connection would become saturated, however for short periods the socket pair acts like a safety valave, in much the same manner as a chained tickerplant would in a traditional tickerplant setup.
+Example 2(a) shows the count of messages sent by the exchange (`sent`), messages received by the client but not yet passed to the parent kdb+ application (`received`), and messages that have been processed by the main kdb+ application (`processed`). For low frequency messages this design performs no better than the first example. In example 2(b), where the processing time of a message has been increased we can see that the number of messages received by the application stays in line with the number sent by the exchange, even though the number processed trails significantly. Eventually the socket pair connection would fill up and the exchange connection would become saturated, however for short periods the socket pair acts like a safety valve, in much the same manner as a chained tickerplant would in a traditional tickerplant setup.
 
-## Design B - Dual Thread consumer with circular buffer
+## Design C - Dual Thread consumer with circular buffer
 
-Inthe final example, the previous setup has been improved in two areas. Transferring the data between threads via a network socket has significant overhead. Even if Unix Domain Sockets are used this transfer is inefficent and has been replaced with a memory copy onto a shared space of memeroy created on the head of the client application. Furtehrmore, rather than passing each message individually onto the main client callback function, multiple messages, when available, are drained from buffer and passed back. This gives the client the option to ignore messages and essentially the option to "look a head" when the application has pending messages. In effect this means that the number of events on the client side, may be significantly less than those on the exchange side.
+In the final example, the previous setup has been improved in two areas. Transferring the data between threads via a network socket has significant overhead. Even if Unix Domain Sockets are used, this transfer is inefficent and has been replaced with a memory copy onto a shared space of memory created on the head of the client application. Furthermore, rather than passing each message individually onto the main client callback function, multiple messages, when available, are drained from buffer and passed back. This gives the client the option to ignore messages and essentially the option to "look a head" when the application has pending messages. In effect this means that the number of events on the client side may be significantly less than those on the exchange side.
 
 ```
 ###################################
